@@ -17,15 +17,7 @@ public:
 
 TEST_F(BookingItem, OnlyOnTheHourFail)
 {
-	tm notOnTheHour = { 0 };
-	notOnTheHour.tm_year = 2021 - 1900;
-	notOnTheHour.tm_mon = 03 - 1;
-	notOnTheHour.tm_mday = 26;
-	notOnTheHour.tm_hour = 9;
-	notOnTheHour.tm_min = 5;
-	notOnTheHour.tm_isdst = -1;
-	mktime(&notOnTheHour);
-
+	tm notOnTheHour = getTime(2021, 3, 26, 9, 5);
 	Customer customer{ "Fake name", "010-1234-5678" };
 	Schedule* schedule = new Schedule{ notOnTheHour, 1, customer };
 	BookingScheduler bookingScheduler{ 3 };
@@ -35,18 +27,9 @@ TEST_F(BookingItem, OnlyOnTheHourFail)
 		}, std::runtime_error);
 }
 
-
 TEST_F(BookingItem, OnlyOnTheHourPass)
 {
-	tm onTheHour = { 0 };
-	onTheHour.tm_year = 2021 - 1900;
-	onTheHour.tm_mon = 03 - 1;
-	onTheHour.tm_mday = 26;
-	onTheHour.tm_hour = 9;
-	onTheHour.tm_min = 0;
-	onTheHour.tm_isdst = -1;
-	mktime(&onTheHour);
-
+	tm onTheHour = getTime(2021, 3, 26, 9, 0);
 	Customer customer{ "Fake name", "010-1234-5678" };
 	Schedule* schedule = new Schedule{ onTheHour, 1, customer };
 	BookingScheduler bookingScheduler{ 3 };
