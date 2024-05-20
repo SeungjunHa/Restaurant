@@ -183,8 +183,18 @@ TEST_F(BookingItem, CannotReserveOnSunday)
 		Schedule* schedule = new Schedule(ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER_WITH_MAIL);
 		bookingScheduler->addSchedule(schedule);
 		FAIL();
-	} 
+	}
 	catch (std::runtime_error& e) {
 		EXPECT_EQ(string{ e.what() }, string{ "Booking system is not available on sunday" });
 	}
+}
+
+TEST_F(BookingItem, CanReserveOnMonday)
+{
+	BookingScheduler* bookingScheduler = new MondayBookingScheduler(CAPACITY_PER_HOUR);
+
+	Schedule* schedule = new Schedule(ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER_WITH_MAIL);
+	bookingScheduler->addSchedule(schedule);
+
+	EXPECT_EQ(true, bookingScheduler->hasSchedule(schedule));
 }
