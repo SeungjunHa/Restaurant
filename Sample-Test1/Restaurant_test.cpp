@@ -19,6 +19,13 @@ public:
 		return result;
 	}
 
+	tm plusHour(tm base, int hour)
+	{
+		base.tm_hour += hour;
+		mktime(&base);
+		return base;
+	}
+
 	tm NOT_ON_THE_HOUR;
 	tm ON_THE_HOUR;
 	Customer CUSTOMER{ "Fake Name", "010-1234-5678" };
@@ -66,10 +73,7 @@ TEST_F(BookingItem, OverCapacityButDifferentHour)
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
 	bookingScheduler.addSchedule(schedule);
 
-	tm differentHour = ON_THE_HOUR;
-	differentHour.tm_hour += 1;
-	mktime(&differentHour);
-
+	tm differentHour = plusHour(ON_THE_HOUR, 1);
 	Schedule* newSchedule = new Schedule{ differentHour, CAPACITY_PER_HOUR, CUSTOMER };
 	bookingScheduler.addSchedule(newSchedule);
 
