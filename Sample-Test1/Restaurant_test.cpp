@@ -44,3 +44,19 @@ TEST_F(BookingItem, OnlyOnTheHourPass)
 
 	EXPECT_EQ(true, bookingScheduler.hasSchedule(schedule));
 }
+
+TEST_F(BookingItem, OverCapacity)
+{
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+
+	bookingScheduler.addSchedule(schedule);
+
+	try {
+		Schedule* newSchedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
+		bookingScheduler.addSchedule(newSchedule);
+		FAIL();
+	}
+	catch (std::runtime_error& e) {
+		EXPECT_EQ(string{ e.what() }, string{"Number of people is over restaurant capacity per hour" });
+	}
+}
