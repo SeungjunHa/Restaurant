@@ -9,8 +9,8 @@ using namespace testing;
 class BookingItem : public Test {
 protected:
 	void SetUp() override {
-		notOnTheHour = getTime(2021, 3, 26, 9, 5);
-		onTheHour = getTime(2021, 3, 26, 9, 0);
+		NOT_ON_THE_HOUR = getTime(2021, 3, 26, 9, 5);
+		ON_THE_HOUR = getTime(2021, 3, 26, 9, 0);
 	}
 public:
 	tm getTime(int year, int mon, int day, int hour, int min) {
@@ -19,14 +19,14 @@ public:
 		return result;
 	}
 
-	tm notOnTheHour;
-	tm onTheHour;
-	Customer customer{ "Fake Name", "010-1234-5678" };
+	tm NOT_ON_THE_HOUR;
+	tm ON_THE_HOUR;
+	Customer CUSTOMER{ "Fake Name", "010-1234-5678" };
 };
 
 TEST_F(BookingItem, OnlyOnTheHourFail)
 {
-	Schedule* schedule = new Schedule{ notOnTheHour, 1, customer };
+	Schedule* schedule = new Schedule{ NOT_ON_THE_HOUR, 1, CUSTOMER };
 	BookingScheduler bookingScheduler{ 3 };
 
 	EXPECT_THROW({
@@ -36,7 +36,7 @@ TEST_F(BookingItem, OnlyOnTheHourFail)
 
 TEST_F(BookingItem, OnlyOnTheHourPass)
 {
-	Schedule* schedule = new Schedule{ onTheHour, 1, customer };
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, 1, CUSTOMER };
 	BookingScheduler bookingScheduler{ 3 };
 
 	bookingScheduler.addSchedule(schedule);
