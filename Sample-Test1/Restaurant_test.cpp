@@ -7,36 +7,18 @@
 using namespace testing;
 using namespace std;
 
-class SundayBookingScheduler : public BookingScheduler {
+class TestableBookingScheduler : public BookingScheduler {
 public:
-	SundayBookingScheduler(int capacityPerhour) :
-		BookingScheduler(capacityPerhour) { };
+	TestableBookingScheduler(int capacityPerHour, tm dateTime) :
+		BookingScheduler{ capacityPerHour },
+		dateTime{ dateTime } { }
 
 	time_t getNow() override {
-		return getTime(2021, 3, 28, 17, 0);
+		return mktime(&dateTime);
 	}
 
 private:
-	time_t getTime(int year, int mon, int day, int hour, int min) {
-		tm result = { 0, min, hour, day, mon - 1, year - 1900, 0, 0, -1 };
-		return mktime(&result);
-	}
-};
-
-class MondayBookingScheduler : public BookingScheduler {
-public:
-	MondayBookingScheduler(int capacityPerhour) :
-		BookingScheduler(capacityPerhour) { };
-
-	time_t getNow() override {
-		return getTime(2021, 6, 3, 17, 0);
-	}
-
-private:
-	time_t getTime(int year, int mon, int day, int hour, int min) {
-		tm result = { 0, min, hour, day, mon - 1, year - 1900, 0, 0, -1 };
-		return mktime(&result);
-	}
+	tm dateTime;
 };
 
 class TestableMailSender : public MailSender {
@@ -91,6 +73,8 @@ public:
 
 	tm NOT_ON_THE_HOUR;
 	tm ON_THE_HOUR;
+	tm MONDAY = getTime(2021, 6, 3, 17, 0);
+	tm SUNDAY = getTime(2021, 3, 28, 17, 0);
 	Customer CUSTOMER{ "Fake Name", "010-1234-5678" };
 	Customer CUSTOMER_WITH_MAIL{ "Fake Name", "010-1234-5678", "test@test.com" };
 	const int UNDER_CAPACITY = 1;
@@ -177,7 +161,7 @@ TEST_F(BookingItem, SendEmailWhenAddress)
 
 TEST_F(BookingItem, CannotReserveOnSunday)
 {
-	BookingScheduler* bookingScheduler = new SundayBookingScheduler(CAPACITY_PER_HOUR);
+	BookingScheduler* bookingScheduler = new TestableBookingScheduler(CAPACITY_PER_HOUR, SUNDAY);
 
 	try {
 		Schedule* schedule = new Schedule(ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER_WITH_MAIL);
@@ -191,7 +175,7 @@ TEST_F(BookingItem, CannotReserveOnSunday)
 
 TEST_F(BookingItem, CanReserveOnMonday)
 {
-	BookingScheduler* bookingScheduler = new MondayBookingScheduler(CAPACITY_PER_HOUR);
+	BookingScheduler* bookingScheduler = new TestableBookingScheduler(CAPACITY_PER_HOUR, MONDAY);
 
 	Schedule* schedule = new Schedule(ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER_WITH_MAIL);
 	bookingScheduler->addSchedule(schedule);
