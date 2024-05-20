@@ -5,6 +5,7 @@
 #include "../Project5/BookingScheduler.cpp"
 
 using namespace testing;
+using namespace std;
 
 class BookingItem : public Test {
 protected:
@@ -79,4 +80,30 @@ TEST_F(BookingItem, OverCapacityButDifferentHour)
 
 	EXPECT_EQ(true, bookingScheduler.hasSchedule(schedule));
 	EXPECT_EQ(true, bookingScheduler.hasSchedule(newSchedule));
+}
+
+class TestableSmsSender : public SmsSender {
+public:
+	void send(Schedule* schedule) override {
+		cout << "테스트용 SmsSender class의 sned에서도 실행됨" << endl;
+		sendMethodIsCalled = true;
+	}
+
+	bool isSendMethodIsCalled() {
+		return sendMethodIsCalled;
+	}
+
+private:
+	bool sendMethodIsCalled;
+};
+
+TEST_F(BookingItem, SMSTest)
+{
+	TestableSmsSender testableSmsSender;
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+	bookingScheduler.setSmsSender(&testableSmsSender);
+
+	bookingScheduler.addSchedule(schedule);
+
+	EXPECT_EQ(true, testableSmsSender.isSendMethodIsCalled());
 }
