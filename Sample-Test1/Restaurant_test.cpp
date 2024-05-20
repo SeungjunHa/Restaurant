@@ -24,12 +24,12 @@ public:
 	Customer CUSTOMER{ "Fake Name", "010-1234-5678" };
 	const int UNDER_CAPACITY = 1;
 	const int CAPACITY_PER_HOUR = 3;
+	BookingScheduler bookingScheduler{ CAPACITY_PER_HOUR };
 };
 
 TEST_F(BookingItem, OnlyOnTheHourFail)
 {
 	Schedule* schedule = new Schedule{ NOT_ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
-	BookingScheduler bookingScheduler{ CAPACITY_PER_HOUR };
 
 	EXPECT_THROW({
 		bookingScheduler.addSchedule(schedule);
@@ -39,7 +39,6 @@ TEST_F(BookingItem, OnlyOnTheHourFail)
 TEST_F(BookingItem, OnlyOnTheHourPass)
 {
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
-	BookingScheduler bookingScheduler{ CAPACITY_PER_HOUR };
 
 	bookingScheduler.addSchedule(schedule);
 
