@@ -7,6 +7,20 @@
 using namespace testing;
 using namespace std;
 
+class TestableMailSender : public MailSender {
+public:
+	void sendMail(Schedule* schedule) override {
+		countSendMailMethodIsCalled++;
+	}
+
+	int getCountSendMailMethodIsCalled() {
+		return countSendMailMethodIsCalled;
+	}
+
+private:
+	int countSendMailMethodIsCalled = 0;
+};
+
 class TestableSmsSender : public SmsSender {
 public:
 	void send(Schedule* schedule) override {
@@ -106,4 +120,14 @@ TEST_F(BookingItem, SendSmsWhenSuccessToReserve)
 	bookingScheduler.addSchedule(schedule);
 
 	EXPECT_EQ(true, testableSmsSender.isSendMethodIsCalled());
+}
+
+TEST_F(BookingItem, NotSendEmailWhenNoAddress)
+{
+	TestableMailSender testableMailSender;
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+	bookingScheduler.setMailSender(&testableMailSender);
+	bookingScheduler.addSchedule(schedule);
+
+	EXPECT_EQ(0, testableMailSender.getCountSendMailMethodIsCalled());
 }
