@@ -4,7 +4,18 @@
 #include "../Project5/Schedule.cpp"
 #include "../Project5/BookingScheduler.cpp"
 
-TEST(BookingSchedulerTest, OnlyOnTheHourFail)
+using namespace testing;
+
+class BookingItem : public Test {
+public:
+	tm getTime(int year, int mon, int day, int hour, int min) {
+		tm result = { 0, min, hour, day, mon - 1, year - 1900, 0, 0, -1 };
+		mktime(&result);
+		return result;
+	}
+};
+
+TEST_F(BookingItem, OnlyOnTheHourFail)
 {
 	tm notOnTheHour = { 0 };
 	notOnTheHour.tm_year = 2021 - 1900;
@@ -25,7 +36,7 @@ TEST(BookingSchedulerTest, OnlyOnTheHourFail)
 }
 
 
-TEST(BookingSchedulerTest, OnlyOnTheHourPass)
+TEST_F(BookingItem, OnlyOnTheHourPass)
 {
 	tm onTheHour = { 0 };
 	onTheHour.tm_year = 2021 - 1900;
