@@ -60,3 +60,19 @@ TEST_F(BookingItem, OverCapacity)
 		EXPECT_EQ(string{ e.what() }, string{"Number of people is over restaurant capacity per hour" });
 	}
 }
+
+TEST_F(BookingItem, OverCapacityButDifferentHour)
+{
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+	bookingScheduler.addSchedule(schedule);
+
+	tm differentHour = ON_THE_HOUR;
+	differentHour.tm_hour += 1;
+	mktime(&differentHour);
+
+	Schedule* newSchedule = new Schedule{ differentHour, CAPACITY_PER_HOUR, CUSTOMER };
+	bookingScheduler.addSchedule(newSchedule);
+
+	EXPECT_EQ(true, bookingScheduler.hasSchedule(schedule));
+	EXPECT_EQ(true, bookingScheduler.hasSchedule(newSchedule));
+}
