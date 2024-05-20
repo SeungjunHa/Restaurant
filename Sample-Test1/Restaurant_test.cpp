@@ -7,11 +7,27 @@
 using namespace testing;
 using namespace std;
 
+class TestableSmsSender : public SmsSender {
+public:
+	void send(Schedule* schedule) override {
+		cout << "테스트용 SmsSender class의 send에서도 실행됨" << endl;
+		sendMethodIsCalled = true;
+	}
+
+	bool isSendMethodIsCalled() {
+		return sendMethodIsCalled;
+	}
+
+private:
+	bool sendMethodIsCalled;
+};
+
 class BookingItem : public Test {
 protected:
 	void SetUp() override {
 		NOT_ON_THE_HOUR = getTime(2021, 3, 26, 9, 5);
 		ON_THE_HOUR = getTime(2021, 3, 26, 9, 0);
+		bookingScheduler.setSmsSender(&testableSmsSender);
 	}
 public:
 	tm getTime(int year, int mon, int day, int hour, int min) {
@@ -33,6 +49,7 @@ public:
 	const int UNDER_CAPACITY = 1;
 	const int CAPACITY_PER_HOUR = 3;
 	BookingScheduler bookingScheduler{ CAPACITY_PER_HOUR };
+	TestableSmsSender testableSmsSender;
 };
 
 TEST_F(BookingItem, OnlyOnTheHourFail)
@@ -82,26 +99,9 @@ TEST_F(BookingItem, OverCapacityButDifferentHour)
 	EXPECT_EQ(true, bookingScheduler.hasSchedule(newSchedule));
 }
 
-class TestableSmsSender : public SmsSender {
-public:
-	void send(Schedule* schedule) override {
-		cout << "테스트용 SmsSender class의 sned에서도 실행됨" << endl;
-		sendMethodIsCalled = true;
-	}
-
-	bool isSendMethodIsCalled() {
-		return sendMethodIsCalled;
-	}
-
-private:
-	bool sendMethodIsCalled;
-};
-
-TEST_F(BookingItem, SMSTest)
+TEST_F(BookingItem, SendSmsWhenSuccessToReserve)
 {
-	TestableSmsSender testableSmsSender;
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
-	bookingScheduler.setSmsSender(&testableSmsSender);
 
 	bookingScheduler.addSchedule(schedule);
 
